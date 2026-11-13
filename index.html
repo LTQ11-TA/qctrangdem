@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosy - Bắt dê đón Tết</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+/* NỀN TRANG BÁO */
+.page-background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.page-background img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center top;
+}
+
+/* LỚP PHỦ TỐI */
+.screen-dim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    z-index: 1;
+}
+
+/* KHUNG QUẢNG CÁO */
+.ad-wrap {
+    position: fixed;
+    z-index: 2;
+    width: min(39vw, 672px);
+    aspect-ratio: 1 / 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ad-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* DẤU X */
+.close-mark {
+    position: absolute;
+    top: -13px;
+    right: -13px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: #333;
+    color: white;
+    font-size: 23px;
+    font-weight: 400;
+    line-height: 1;
+    z-index: 3;
+    user-select: none;
+}
+
+/* NÚT TẠI ĐÂY */
+.cta-link {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+
+    width: 34%;
+    height: 9%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    background: linear-gradient(
+        180deg,
+        #ff5555 0%,
+        #d90000 48%,
+        #990000 100%
+    );
+
+    border: 3px solid #ffdf70;
+    border-radius: 50px;
+
+    color: #ffffff;
+    font-size: clamp(13px, 1.3vw, 20px);
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 1px;
+
+    z-index: 4;
+    pointer-events: auto;
+
+    animation: buttonGlow 1.8s ease-in-out infinite;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+/* HIỆU ỨNG KHI RÊ CHUỘT */
+.cta-link:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+
+    
+
+/* ÁNH SÁNG NHẤP NHÁY */
+@keyframes buttonGlow {
+    0%, 100% {
+        filter: brightness(1);
+       
+    }
+
+    50% {
+        filter: brightness(1.2);
+        
+}
+
+/* GIAO DIỆN MOBILE */
+@media (max-width: 600px) {
+
+    .page-background img {
+        object-position: center 31.5%;
+    }
+
+    .ad-wrap {
+        width: min(82vw, 430px);
+    }
+
+    .close-mark {
+        width: 29px;
+        height: 29px;
+        top: -11px;
+        right: -11px;
+        font-size: 20px;
+    }
+   .cta-link {
+    width: 42%;
+    height: 8%;
+    font-size: 12px;
+    border-width: 2px;
+    gap: 5px;
+}
+
+.cta-link::after {
+    font-size: 15px;
+}
+
+/* MÀN HÌNH NGANG */
+@media (max-height: 520px) and (orientation: landscape) {
+    .ad-wrap {
+        height: 88vh;
+        width: 88vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ẢNH NỀN: TỰ ĐỔI THEO THIẾT BỊ -->
+<picture class="page-background">
+    <source
+        media="(max-width: 600px)"
+        srcset="nen dth chinh.png"
+    >
+
+    <img
+        src="background-desktop.png"
+        alt="Trang chủ báo Tuổi Trẻ"
+    >
+</picture>
+
+<!-- LỚP PHỦ TỐI -->
+<div class="screen-dim"></div>
+
+<!-- QUẢNG CÁO COSY -->
+<main class="ad-wrap">
+
+    <img
+        class="ad-image"
+        src="nền trang đệm.png"
+        alt="Bắt dê đón Tết - Cosy gắn kết"
+    >
+
+    <!-- DẤU X TRANG TRÍ -->
+    <span class="close-mark">×</span>
+
+    <!-- VÙNG CHỜ GẮN LIÊN KẾT -->
+    <a
+    class="cta-link"
+    href="game.html"
+    aria-label="Khám phá trò chơi Bắt dê đón Tết"
+>
+    Khám phá
+</a>
+
+</main>
+
+</body>
+</html>

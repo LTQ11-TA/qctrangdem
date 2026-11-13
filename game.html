@@ -1,0 +1,653 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosy - Bắt dê đón Tết</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================
+   NỀN GAME
+========================= */
+
+.game-background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.game-background img {
+    width: 100%; 
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* =========================
+   KHU VỰC VÒNG QUAY
+========================= */
+
+.wheel-area {
+    position: absolute;
+
+    /* Tâm vòng quay trên ảnh nền */
+    left: 50.6%;
+    top: 61%;
+
+    width: min(34vw, 60vh);
+    aspect-ratio: 1 / 1;
+
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+/* ẢNH VÒNG QUAY */
+
+.wheel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+
+    transform: rotate(0deg);
+    transition: transform 5s cubic-bezier(.12,.75,.12,1);
+
+    will-change: transform;
+}
+
+/* MŨI TÊN CỐ ĐỊNH */
+
+.wheel-arrow {
+    position: absolute;
+    z-index: 5;
+
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 0;
+    height: 0;
+
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-top: 39px solid #FFD34E;
+
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.45));
+}
+
+.wheel-arrow::after {
+    content: "";
+    position: absolute;
+
+    top: -35px;
+    left: -9px;
+
+    width: 0;
+    height: 0;
+
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 31px solid #8d0000;
+}
+
+
+/* NÚT QUAY Ở TÂM VÒNG QUAY */
+
+.spin-button {
+    position: absolute;
+    z-index: 6;
+
+    width: 31%;
+    height: 31%;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+
+    color: transparent;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Hiệu ứng khi rê chuột */
+
+.spin-button:hover {
+    filter: drop-shadow(0 0 8px rgba(255,220,80,.8));
+}
+
+.spin-button:disabled {
+    cursor: default;
+}
+
+/* =========================
+   LỚP PHỦ KHI HIỆN THẺ
+========================= */
+
+.card-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    background: rgba(0,0,0,.78);
+    z-index: 20;
+
+    padding: 20px;
+}
+
+.card-overlay.show {
+    display: flex;
+}
+
+/* KHUNG THẺ */
+
+.card-container {
+    position: relative;
+
+    width: min(24vw, 370px);
+    max-height: 75vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    animation: cardAppear .45s ease;
+}
+
+.card-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 22px;
+}
+
+/* NÚT X ĐÓNG THẺ */
+
+.card-close {
+    position: absolute;
+    top: -13px;
+    right: -13px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid white;
+    border-radius: 50%;
+
+    background: #a90000;
+    color: white;
+
+    font-size: 25px;
+    line-height: 1;
+
+    cursor: pointer;
+    z-index: 25;
+}
+
+/* =========================
+   CHIA SẺ - CHỈ HIỂN THỊ
+========================= */
+
+.share-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.share-label {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 3px;
+}
+
+.share-item {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    background: white;
+    overflow: hidden;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+
+.share-item img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+    display: block;
+}
+
+.share-zalo img {
+    width: 27px;
+    height: 27px;
+}
+
+.share-facebook img {
+    width: 23px;
+    height: 23px;
+}
+
+.share-instagram img {
+    width: 25px;
+    height: 25px;
+}
+.share-item {
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .25s ease;
+}
+
+.share-item:hover {
+    transform: scale(1.12);
+}
+
+/* =========================
+   HIỆU ỨNG
+========================= */
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: scale(.82);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* =========================
+   RESPONSIVE CƠ BẢN
+========================= */
+
+@media (max-width: 600px) {
+
+    .wheel-area {
+        width: min(78vw, 48vh);
+    }
+
+    .card-container {
+        width: min(76vw, 370px);
+    }
+
+    .card-close {
+        width: 32px;
+        height: 32px;
+        font-size: 22px;
+    }
+
+    .share-area {
+        margin-top: 15px;
+        gap: 10px;
+    }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+    .wheel-area {
+        width: 48vh;
+    }
+
+    .card-container {
+        width: auto;
+        height: 70vh;
+    }
+
+    .card-image {
+        height: 70vh;
+        width: auto;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- NỀN GAME -->
+<div class="game-background">
+    <img src="nền game.png" alt="Cosy - Bắt dê đón Tết">
+</div>
+
+<!-- VÒNG QUAY -->
+<div class="wheel-area">
+
+    <img
+        src="vòng quay.png"
+        class="wheel"
+        id="wheel"
+        alt="Vòng quay may mắn"
+    >
+
+    <!-- MŨI TÊN -->
+    <div class="wheel-arrow"></div>
+
+    <!-- NÚT QUAY -->
+    <button
+        class="spin-button"
+        id="spinButton"
+        aria-label="Quay vòng quay"
+    ></button>
+
+</div>
+
+<!-- THẺ LỜI CHÚC -->
+<div class="card-overlay" id="cardOverlay">
+
+    <div class="card-container">
+
+        <img
+            src=""
+            class="card-image"
+            id="cardImage"
+            alt="Thẻ lời chúc Cosy"
+        >
+
+        <button
+            class="card-close"
+            id="closeCard"
+            aria-label="Đóng thẻ"
+        >×</button>
+
+    </div>
+
+    <!-- BIỂU TƯỢNG CHIA SẺ MINH HỌA -->
+<div class="share-area">
+
+    <span class="share-label">Chia sẻ:</span>
+
+    <!-- Zalo -->
+    <a
+        href="https://zalo.me/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="share-item share-zalo"
+        aria-label="Zalo"
+    >
+        <img
+            src="https://commons.wikimedia.org/wiki/Special:FilePath/Icon_of_Zalo.svg"
+            alt="Zalo"
+        >
+    </a>
+
+    <!-- Facebook -->
+    <a
+        href="https://www.facebook.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="share-item share-facebook"
+        aria-label="Facebook"
+    >
+        <img
+            src="https://cdn.simpleicons.org/facebook/0866FF"
+            alt="Facebook"
+        >
+    </a>
+
+    <!-- Instagram -->
+    <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="share-item share-instagram"
+        aria-label="Instagram"
+    >
+        <img
+            src="https://cdn.simpleicons.org/instagram/E4405F"
+            alt="Instagram"
+        >
+    </a>
+
+</div>
+
+<script>
+
+/* =========================
+   KHAI BÁO DỮ LIỆU
+========================= */
+
+const wheel = document.getElementById("wheel");
+const spinButton = document.getElementById("spinButton");
+
+const cardOverlay = document.getElementById("cardOverlay");
+const cardImage = document.getElementById("cardImage");
+const closeCard = document.getElementById("closeCard");
+
+/* Sáu ảnh thẻ lời chúc */
+
+const cards = [
+    "thẻ 1.png",
+    "thẻ 2.png",
+    "thẻ3.png",
+    "thẻ 4.png",
+    "thẻ 5.png",
+    "thẻ 6.png"
+];
+
+/* Các ô đã trúng trong một chu kỳ */
+
+let availableCards = [0, 1, 2, 3, 4, 5];
+
+/* Góc quay hiện tại */
+
+let currentRotation = 0;
+
+/* Trạng thái vòng quay */
+
+let isSpinning = false;
+
+
+/* =========================
+   ÂM THANH VÒNG QUAY
+========================= */
+
+let audioContext = null;
+let soundInterval = null;
+
+function playTick() {
+
+    try {
+
+        if (!audioContext) {
+            audioContext = new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+        }
+
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = 650;
+
+        gain.gain.setValueAtTime(
+            0.045,
+            audioContext.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioContext.currentTime + 0.045
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.05);
+
+    } catch (error) {
+        console.log("Âm thanh không khả dụng");
+    }
+}
+
+
+/* =========================
+   BẮT ĐẦU VÒNG QUAY
+========================= */
+
+spinButton.addEventListener("click", function () {
+
+    if (isSpinning) return;
+
+    isSpinning = true;
+    spinButton.disabled = true;
+
+    /* Nếu đã đủ sáu thẻ, bắt đầu chu kỳ mới */
+
+    if (availableCards.length === 0) {
+        availableCards = [0, 1, 2, 3, 4, 5];
+    }
+
+    /* Chọn ngẫu nhiên một ô chưa trúng */
+
+    const randomPosition = Math.floor(
+        Math.random() * availableCards.length
+    );
+
+    const selectedCard = availableCards[randomPosition];
+
+    /* Loại ô vừa trúng khỏi danh sách */
+
+    availableCards.splice(randomPosition, 1);
+
+    /*
+       Vòng quay có 6 ô.
+       Mỗi ô cách nhau 60 độ.
+       Ô số 0 nằm ở vị trí trên cùng.
+    */
+
+    const currentNormalized =
+        ((currentRotation % 360) + 360) % 360;
+
+    const targetAngle =
+        (360 - ((currentNormalized + selectedCard * 60) % 360)) % 360;
+
+    /* Thêm nhiều vòng quay trước khi dừng */
+
+    const extraRounds = 5 * 360;
+
+    currentRotation += extraRounds + targetAngle;
+
+    /* Bật âm thanh */
+
+    let tickSpeed = 75;
+
+    function startSound() {
+
+        playTick();
+
+        soundInterval = setInterval(() => {
+            playTick();
+        }, tickSpeed);
+
+        /* Âm thanh chậm dần */
+
+        setTimeout(() => {
+            clearInterval(soundInterval);
+
+            tickSpeed = 180;
+
+            soundInterval = setInterval(() => {
+                playTick();
+            }, tickSpeed);
+
+        }, 2500);
+
+        setTimeout(() => {
+            clearInterval(soundInterval);
+        }, 4900);
+    }
+
+    startSound();
+
+    /* Xoay vòng quay */
+
+    wheel.style.transform =
+        `rotate(${currentRotation}deg)`;
+
+    /* Chờ vòng quay dừng */
+
+    setTimeout(() => {
+
+        clearInterval(soundInterval);
+
+        isSpinning = false;
+        spinButton.disabled = false;
+
+        /* Hiện thẻ lời chúc tương ứng */
+
+        cardImage.src = cards[selectedCard];
+
+        cardOverlay.classList.add("show");
+
+    }, 5200);
+
+});
+
+
+/* =========================
+   ĐÓNG THẺ LỜI CHÚC
+========================= */
+
+closeCard.addEventListener("click", function () {
+
+    cardOverlay.classList.remove("show");
+
+});
+
+
+/* Không đóng thẻ khi bấm vào nội dung thẻ */
+
+document.querySelector(".card-container")
+.addEventListener("click", function (event) {
+    event.stopPropagation();
+});
+
+</script>
+
+</body>
+</html>
