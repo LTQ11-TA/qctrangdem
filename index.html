@@ -2,37 +2,51 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Cosy - Bắt dê đón Tết</title>
 
   <style>
     /*
-      NGUYÊN TẮC: ảnh nền và banner dùng CHUNG một "sân khấu" (stage).
-      - Ảnh nền hiển thị kiểu "cover" (phủ kín, canh giữa theo chiều ngang, sát mép trên).
-      - Banner được tính vị trí + kích thước theo đúng kích thước ảnh nền đang hiển thị
-        (--stage-w), nên cửa sổ trình duyệt to nhỏ, tỉ lệ nào thì banner vẫn
-        đè khít lên khung quảng cáo có sẵn trong ảnh nền.
+      NGUYÊN TẮC: banner luôn bám theo ẢNH NỀN, không bám theo cửa sổ.
 
-      --ratio  = rộng / cao của ảnh nền (JS ở cuối file tự đọc từ ảnh thật).
-      --stage-w = chiều rộng ảnh nền khi hiển thị (giống object-fit: cover).
-      --stage-x = khoảng cách từ mép trái màn hình tới mép trái ảnh nền (để canh giữa).
+      --ratio   = rộng / cao của ảnh nền (JS ở cuối file tự đọc từ ảnh thật)
+      --stage-w = chiều rộng ảnh nền khi hiển thị
+                  = vừa chiều rộng màn hình (100vw); nếu màn hình quá "lùn" thì
+                    phóng to thêm để lấp đầy chiều cao, nhưng tối đa 112vw để
+                    khung quảng cáo không bao giờ bị cắt khỏi màn hình.
+      --stage-x = khoảng cách từ mép trái màn hình tới mép trái ảnh nền (canh giữa)
+
+      Banner được đặt bằng % của --stage-w nên luôn đè khít khung quảng cáo trong ảnh.
     */
     :root {
-      --ratio: 1.9;
+      --ratio: 1.9015; /* 5925 / 3116, ảnh desktop */
 
-      --stage-w: max(100vw, calc(100vh * var(--ratio)));
+      --stage-w: clamp(100vw, calc(100vh * var(--ratio)), 112vw);
       --stage-x: calc((100vw - var(--stage-w)) / 2);
 
-      /* Vị trí khung quảng cáo trong ảnh nền, tính theo % chiều rộng ảnh nền.
-         Chỉnh 4 số này nếu muốn nhích banner (đơn vị: 1 = 100% chiều rộng ảnh). */
-      --ad-left: 0.6938;   /* mép trái banner  */
-      --ad-top: 0.2415;    /* mép trên banner  */
-      --ad-width: 0.2416;  /* chiều rộng banner */
+      /* Vị trí khung quảng cáo trong ảnh nền desktop (đã đo trên ảnh thật 5925x3116:
+         khung rộng 1418px, cao 1181px, cách trái 4117px, cách trên 1443px).
+         Đơn vị: 1 = 100% chiều rộng ảnh nền. Đã nới ~2px mỗi cạnh để không lộ viền. */
+      --ad-left: 0.69385;
+      --ad-top: 0.24264;
+      --ad-width: 0.24132;
     }
 
     @supports (height: 100dvh) {
       :root {
-        --stage-w: max(100vw, calc(100dvh * var(--ratio)));
+        --stage-w: clamp(100vw, calc(100dvh * var(--ratio)), 112vw);
+      }
+    }
+
+    /* Điện thoại (màn hình hẹp, đang cầm dọc): dùng ảnh nền mobile (2588 x 5600).
+       Khung quảng cáo đỏ nằm giữa ảnh: rộng 1906px, cao 1589px,
+       cách trái 358px, cách trên 1260px. Đã nới ~2px mỗi cạnh. */
+    @media (max-width: 700px) and (orientation: portrait) {
+      :root {
+        --ratio: 0.4621;
+        --ad-left: 0.13733;
+        --ad-top: 0.48608;
+        --ad-width: 0.73848;
       }
     }
 
@@ -65,7 +79,7 @@
       height: auto;
     }
 
-    /* Banner bên phải: đè khít lên khung quảng cáo trong ảnh nền */
+    /* Banner thật để bấm: đè khít lên khung quảng cáo trong ảnh nền */
     .right-banner {
       position: fixed;
       z-index: 2;
@@ -76,6 +90,7 @@
       display: block;
       overflow: hidden;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .right-banner img {
@@ -90,26 +105,16 @@
       outline-offset: 4px;
     }
 
-    /* Điện thoại: ảnh nền khác, banner nổi ở góc phải dưới như bản cũ */
-    @media (max-width: 700px) {
-      .right-banner {
-        left: auto;
-        top: auto;
-        right: 4%;
-        bottom: 3%;
-        width: clamp(150px, 52vw, 300px);
-      }
-    }
   </style>
 </head>
 
 <body>
   <!-- Ảnh nền trang báo -->
   <picture class="page-background">
-    <!-- Lưu ý: tên file có dấu cách phải viết %20 trong srcset, nếu không trình duyệt sẽ bỏ qua ảnh này -->
+    <!-- Điện thoại cầm dọc dùng ảnh nền mobile; điều kiện phải khớp với @media ở phần CSS -->
     <source
-      media="(max-width: 700px)"
-      srcset="nen%20dth%20chinh.png"
+      media="(max-width: 700px) and (orientation: portrait)"
+      srcset="background-mobile.png"
     >
 
     <img
