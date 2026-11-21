@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosy - Bắt dê đón Tết</title>
+
+  <style>
+    /*
+      NGUYÊN TẮC: ảnh nền và banner dùng CHUNG một "sân khấu" (stage).
+      - Ảnh nền hiển thị kiểu "cover" (phủ kín, canh giữa theo chiều ngang, sát mép trên).
+      - Banner được tính vị trí + kích thước theo đúng kích thước ảnh nền đang hiển thị
+        (--stage-w), nên cửa sổ trình duyệt to nhỏ, tỉ lệ nào thì banner vẫn
+        đè khít lên khung quảng cáo có sẵn trong ảnh nền.
+
+      --ratio  = rộng / cao của ảnh nền (JS ở cuối file tự đọc từ ảnh thật).
+      --stage-w = chiều rộng ảnh nền khi hiển thị (giống object-fit: cover).
+      --stage-x = khoảng cách từ mép trái màn hình tới mép trái ảnh nền (để canh giữa).
+    */
+    :root {
+      --ratio: 1.9;
+
+      --stage-w: max(100vw, calc(100vh * var(--ratio)));
+      --stage-x: calc((100vw - var(--stage-w)) / 2);
+
+      /* Vị trí khung quảng cáo trong ảnh nền, tính theo % chiều rộng ảnh nền.
+         Chỉnh 4 số này nếu muốn nhích banner (đơn vị: 1 = 100% chiều rộng ảnh). */
+      --ad-left: 0.6938;   /* mép trái banner  */
+      --ad-top: 0.2415;    /* mép trên banner  */
+      --ad-width: 0.2416;  /* chiều rộng banner */
+    }
+
+    @supports (height: 100dvh) {
+      :root {
+        --stage-w: max(100vw, calc(100dvh * var(--ratio)));
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #fff;
+    }
+
+    /* Ảnh chụp trang báo làm nền */
+    .page-background {
+      position: fixed;
+      z-index: 0;
+      top: 0;
+      left: var(--stage-x);
+      width: var(--stage-w);
+      display: block;
+    }
+
+    .page-background img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Banner bên phải: đè khít lên khung quảng cáo trong ảnh nền */
+    .right-banner {
+      position: fixed;
+      z-index: 2;
+      left: calc(var(--stage-x) + var(--stage-w) * var(--ad-left));
+      top: calc(var(--stage-w) * var(--ad-top));
+      width: calc(var(--stage-w) * var(--ad-width));
+      aspect-ratio: 937 / 781;
+      display: block;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .right-banner img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .right-banner:focus-visible {
+      outline: 3px solid #111;
+      outline-offset: 4px;
+    }
+
+    /* Điện thoại: ảnh nền khác, banner nổi ở góc phải dưới như bản cũ */
+    @media (max-width: 700px) {
+      .right-banner {
+        left: auto;
+        top: auto;
+        right: 4%;
+        bottom: 3%;
+        width: clamp(150px, 52vw, 300px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Ảnh nền trang báo -->
+  <picture class="page-background">
+    <!-- Lưu ý: tên file có dấu cách phải viết %20 trong srcset, nếu không trình duyệt sẽ bỏ qua ảnh này -->
+    <source
+      media="(max-width: 700px)"
+      srcset="nen%20dth%20chinh.png"
+    >
+
+    <img
+      id="bg"
+      src="background-desktop.png"
+      alt="Trang báo Tuổi Trẻ"
+    >
+  </picture>
+
+  <!-- Bấm vào banner để mở game.html -->
+  <a
+    class="right-banner"
+    href="game.html"
+    aria-label="Khám phá trò chơi Bắt dê đón Tết"
+  >
+    <img
+      src="right%20banner.png"
+      alt="Bắt dê đón Tết, Cosy gắn kết"
+    >
+  </a>
+
+  <script>
+    // Đọc tỉ lệ thật của ảnh nền đang hiển thị (desktop hoặc mobile) để banner luôn khớp.
+    (function () {
+      var bg = document.getElementById('bg');
+      var root = document.documentElement;
+
+      function syncRatio() {
+        if (bg.naturalWidth && bg.naturalHeight) {
+          root.style.setProperty('--ratio', (bg.naturalWidth / bg.naturalHeight).toFixed(5));
+        }
+      }
+
+      bg.addEventListener('load', syncRatio);   // chạy lại cả khi <picture> đổi sang ảnh khác
+      window.addEventListener('resize', syncRatio);
+      window.addEventListener('orientationchange', syncRatio);
+      if (bg.complete) syncRatio();
+    })();
+  </script>
+</body>
+</html>
